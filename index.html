@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Disease Risk Predictor</title>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(17, 25, 40, 0.75);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --primary-color: #00d2ff;
+            --primary-hover: #00b4db;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --text-color: #f3f4f6;
+            --text-secondary: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(0, 210, 255, 0.08) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(16, 185, 129, 0.08) 0px, transparent 50%);
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00d2ff 0%, #10b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 400;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            form {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 768px) {
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+        }
+
+        label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #d1d5db;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-tip {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+
+        input, select {
+            width: 100%;
+            background: rgba(31, 41, 55, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: var(--text-color);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 210, 255, 0.2);
+            background: rgba(31, 41, 55, 0.8);
+        }
+
+        button {
+            grid-column: span 2;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 1rem;
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            button {
+                grid-column: span 1;
+            }
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 210, 255, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Result Styles */
+        .result-box {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.25rem;
+            border: 1px solid transparent;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-box.danger {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: var(--danger-color);
+        }
+
+        .result-box.success {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: var(--success-color);
+        }
+
+        .result-box.error {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: rgba(245, 158, 11, 0.3);
+            color: #f59e0b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Heart Disease Risk Assessment</h1>
+            <p class="subtitle">Enter patient parameters to assess cardiovascular disease risk using our ML model</p>
+        </header>
+
+        <form action="/predict" method="POST">
+            <!-- 1. Age -->
+            <div class="form-group">
+                <label for="age">Age <span class="info-tip">(Years)</span></label>
+                <input type="number" id="age" name="age" min="1" max="120" required 
+                       value="{{ form_data.age if form_data else '55' }}">
+            </div>
+
+            <!-- 2. Sex -->
+            <div class="form-group">
+                <label for="sex">Sex</label>
+                <select id="sex" name="sex" required>
+                    <option value="1" {{ 'selected' if form_data and form_data.sex == '1' else '' }}>Male</option>
+                    <option value="0" {{ 'selected' if form_data and form_data.sex == '0' else '' }}>Female</option>
+                </select>
+            </div>
+
+            <!-- 3. Chest Pain Type -->
+            <div class="form-group">
+                <label for="cp">Chest Pain Type <span class="info-tip">(0-3)</span></label>
+                <select id="cp" name="cp" required>
+                    <option value="0" {{ 'selected' if form_data and form_data.cp == '0' else '' }}>Typical Angina (0)</option>
+                    <option value="1" {{ 'selected' if form_data and form_data.cp == '1' else '' }}>Atypical Angina (1)</option>
+                    <option value="2" {{ 'selected' if form_data and form_data.cp == '2' else '' }}>Non-anginal Pain (2)</option>
+                    <option value="3" {{ 'selected' if form_data and form_data.cp == '3' else '' }}>Asymptomatic (3)</option>
+                </select>
+            </div>
+
+            <!-- 4. Resting Blood Pressure -->
+            <div class="form-group">
+                <label for="trestbps">Resting BP <span class="info-tip">(trestbps mm Hg)</span></label>
+                <input type="number" id="trestbps" name="trestbps" min="50" max="250" required 
+                       value="{{ form_data.trestbps if form_data else '130' }}">
+            </div>
+
+            <!-- 5. Serum Cholesterol -->
+            <div class="form-group">
+                <label for="chol">Cholesterol <span class="info-tip">(chol mg/dl)</span></label>
+                <input type="number" id="chol" name="chol" min="100" max="600" required 
+                       value="{{ form_data.chol if form_data else '240' }}">
+            </div>
+
+            <!-- 6. Fasting Blood Sugar -->
+            <div class="form-group">
+                <label for="fbs">Fasting Blood Sugar > 120 mg/dl</label>
+                <select id="fbs" name="fbs" required>
+                    <option value="0" {{ 'selected' if form_data and form_data.fbs == '0' else '' }}>False (Sugar <= 120)</option>
+                    <option value="1" {{ 'selected' if form_data and form_data.fbs == '1' else '' }}>True (Sugar > 120)</option>
+                </select>
+            </div>
+
+            <!-- 7. Resting Electrocardiographic Results -->
+            <div class="form-group">
+                <label for="restecg">Resting ECG Results <span class="info-tip">(restecg 0-2)</span></label>
+                <select id="restecg" name="restecg" required>
+                    <option value="0" {{ 'selected' if form_data and form_data.restecg == '0' else '' }}>Normal (0)</option>
+                    <option value="1" {{ 'selected' if form_data and form_data.restecg == '1' else '' }}>ST-T Wave Abnormality (1)</option>
+                    <option value="2" {{ 'selected' if form_data and form_data.restecg == '2' else '' }}>Left Ventricular Hypertrophy (2)</option>
+                </select>
+            </div>
+
+            <!-- 8. Maximum Heart Rate Achieved -->
+            <div class="form-group">
+                <label for="thalach">Max Heart Rate <span class="info-tip">(thalach bpm)</span></label>
+                <input type="number" id="thalach" name="thalach" min="60" max="220" required 
+                       value="{{ form_data.thalach if form_data else '150' }}">
+            </div>
+
+            <!-- 9. Exercise Induced Angina -->
+            <div class="form-group">
+                <label for="exang">Exercise Induced Angina</label>
+                <select id="exang" name="exang" required>
+                    <option value="0" {{ 'selected' if form_data and form_data.exang == '0' else '' }}>No (0)</option>
+                    <option value="1" {{ 'selected' if form_data and form_data.exang == '1' else '' }}>Yes (1)</option>
+                </select>
+            </div>
+
+            <!-- 10. ST depression induced by exercise -->
+            <div class="form-group">
+                <label for="oldpeak">ST Depression <span class="info-tip">(oldpeak 0.0 - 6.2)</span></label>
+                <input type="number" id="oldpeak" name="oldpeak" min="0" max="8" step="0.1" required 
+                       value="{{ form_data.oldpeak if form_data else '1.0' }}">
+            </div>
+
+            <!-- 11. Slope of peak exercise ST segment -->
+            <div class="form-group">
+                <label for="slope">Slope of Peak ST <span class="info-tip">(slope 0-2)</span></label>
+                <select id="slope" name="slope" required>
+                    <option value="0" {{ 'selected' if form_data and form_data.slope == '0' else '' }}>Upsloping (0)</option>
+                    <option value="1" {{ 'selected' if form_data and form_data.slope == '1' else '' }}>Flat (1)</option>
+                    <option value="2" {{ 'selected' if form_data and form_data.slope == '2' else '' }}>Downsloping (2)</option>
+                </select>
+            </div>
+
+            <!-- 12. Number of major vessels colored by flourosopy -->
+            <div class="form-group">
+                <label for="ca">Major Vessels <span class="info-tip">(ca 0-4)</span></label>
+                <select id="ca" name="ca" required>
+                    <option value="0" {{ 'selected' if form_data and form_data.ca == '0' else '' }}>0 major vessels</option>
+                    <option value="1" {{ 'selected' if form_data and form_data.ca == '1' else '' }}>1 major vessel</option>
+                    <option value="2" {{ 'selected' if form_data and form_data.ca == '2' else '' }}>2 major vessels</option>
+                    <option value="3" {{ 'selected' if form_data and form_data.ca == '3' else '' }}>3 major vessels</option>
+                    <option value="4" {{ 'selected' if form_data and form_data.ca == '4' else '' }}>4 major vessels</option>
+                </select>
+            </div>
+
+            <!-- 13. Thalassemia -->
+            <div class="form-group">
+                <label for="thal">Thalassemia <span class="info-tip">(thal 0-3)</span></label>
+                <select id="thal" name="thal" required>
+                    <option value="1" {{ 'selected' if form_data and form_data.thal == '1' else '' }}>Normal (1)</option>
+                    <option value="2" {{ 'selected' if form_data and form_data.thal == '2' else '' }}>Fixed Defect (2)</option>
+                    <option value="3" {{ 'selected' if form_data and form_data.thal == '3' else '' }}>Reversible Defect (3)</option>
+                    <option value="0" {{ 'selected' if form_data and form_data.thal == '0' else '' }}>Null/Other (0)</option>
+                </select>
+            </div>
+
+            <button type="submit">Submit Assessment</button>
+        </form>
+
+        {% if prediction_text %}
+            <div class="result-box {{ prediction_class }}">
+                {{ prediction_text }}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
